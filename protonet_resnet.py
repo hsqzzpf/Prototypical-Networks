@@ -1,17 +1,6 @@
 import torch.nn as nn
 from torchvision import models
 
-def conv_block(in_channels, out_channels):
-    '''
-    returns a block conv-bn-relu-pool
-    '''
-    return nn.Sequential(
-        nn.Conv2d(in_channels, out_channels, 3, padding=1),
-        nn.BatchNorm2d(out_channels),
-        nn.ReLU(),
-        nn.MaxPool2d(2)
-    )
-
 class ProtoResNet(nn.Module):
     '''
     Model as described in the reference paper,
