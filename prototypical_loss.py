@@ -34,6 +34,31 @@ def euclidean_dist(x, y):
     return torch.pow(x - y, 2).sum(2)
 
 
+def consine_simi(x, y):
+    '''
+    Compute consine similarity between two tensors
+    '''
+    # x: N x D
+    # y: M x D
+    n = x.size(0)
+    m = y.size(0)
+    d = x.size(1)
+    if d != y.size(1):
+        raise Exception
+
+    x = x.unsqueeze(1).expand(n, m, d)
+    
+    y = y.unsqueeze(0).expand(n, m, d)
+    
+    # denominater = torch.sqrt(torch.pow(x,2).sum() + torch.pow(y,2).sum())
+    
+    # return ((x*y).sum(2))/denominater
+
+    cos = torch.nn.CosineSimilarity(dim=2,eps=1e-6)
+
+    return cos(x,y)
+
+
 def prototypical_loss(input, target, n_support):
     '''
     Inspired by https://github.com/jakesnell/prototypical-networks/blob/master/protonets/models/few_shot.py
@@ -72,6 +97,7 @@ def prototypical_loss(input, target, n_support):
 
     query_samples = input.to('cpu')[query_idxs]
     dists = euclidean_dist(query_samples, prototypes)
+    # dists =-consine_simi(query_samples, prototypes)
 
     log_p_y = F.log_softmax(-dists, dim=1).view(n_classes, n_query, -1)
 
