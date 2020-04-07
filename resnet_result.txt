@@ -20,4 +20,5 @@ python train.py --cuda -nsTr 1 -nsVa 1 => Test Acc: 0.9788400051593781
 
 python train.py --cuda -nsTr 1 -nsVa 1 -cVa 20 => Test Acc: 0.9203133329749107
 
-python train.py --cuda -nsTr 5 -nsVa 5 -cVa 20 => CUDA out of memory
+python train.py --cuda -nsTr 5 -nsVa 5 -cVa 20 => Test Acc: 0.974703341960907 
+(with resnet18 to prevent CUDA out of memory)
