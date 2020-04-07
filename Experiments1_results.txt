@@ -1,0 +1,116 @@
+Experiment PartI :
+    1.Distance Metrcis - with Cosine Similarity (nep=10)
+
+        - 1-shot (5way): python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 
+            Testing with last model..
+            Test Acc: 0.8130800018906593
+            Testing with best model..
+            Test Acc: 0.8181066675186157
+
+
+        - 5-shot (5way): python train.py --cuda -nep 10 
+            Testing with last model..
+            Test Acc: 0.8478133355081081
+            Testing with best model..
+            Test Acc: 0.8516133359074592
+
+
+
+        - 1-shot (20way): python train.py --cuda -nsTr 1 -nsVa 1 -cVa 20 -nep 10 
+            Testing with last model..
+            Test Acc: 0.5951333323717117
+            Testing with best model..
+            Test Acc: 0.5949766660630703
+
+
+
+        - 5-shot (20way): python train.py --cuda -nsTr 5 -nsVa 5 -cVa 20 -nep 10 
+            Testing with last model..
+            Test Acc: 0.6879833346307278
+            Testing with best model..
+            Test Acc: 0.6877400012016296
+
+As the results shown, using Eclidean Distance indeed outperforms Cosine Similarity greatly for all 4 models.
+The reason behind it could be, as the aurthor suggested, consine distance does not belong to class of regular Bregman divergences. 
+Therefore, the prototype (centoriod) may not necessiraily be the mean.
+
+    2.Episodic Composition (**nep=10,eculidian_dist)
+        1) Compare different number of class during training for a 1-shot 5-way classification:
+            - (default) cTr = 60, cTest = 5: 
+              python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 
+                Testing with last model..
+                Test Acc: 0.9715066719651222
+                Testing with best model..
+                Test Acc: 0.97285333776474
+
+
+            - cTr = 25, cTest = 5:
+              python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 -cTr 25 -cVa 5
+                Testing with last model..
+                Test Acc: 0.9554533379077912
+                Testing with best model..
+                Test Acc: 0.9569733386039734
+
+
+            - cTr = 10, cTest = 5:
+              python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 -cTr 10 -cVa 5 
+                Testing with last model..
+                Test Acc: 0.9330400040149689
+                Testing with best model..
+                Test Acc: 0.9297866699099541
+
+
+            - cTr = cTest = 5:
+              python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 -cTr 5 -cVa 5 
+                Testing with last model..
+                Test Acc: 0.8894800020456314
+                Testing with best model..
+                Test Acc: 0.8864800026416778
+
+Our results is consistent with the authers' prediction: For a 'n-way' classification on the test set with n classes,
+if there is higher number of classes of the traning set, it will 'extremely beneficial' to the results. 
+As we can see from the above results, when we increase the number of training class(5) from equal to the number of test class(5) to 
+12 times of the number of test class(60), there is almost 0.9 increase in test accuracy .      
+
+
+        2) Compare different number of suporting samples during testing or training time in relation to 'shot' number:
+            i) 1-shot:
+            - nsTr(1) = nsTest(1):
+              python train.py --cuda -nsTr 1 -nsVa 1 -nep 10 
+                Testing with last model..
+                Test Acc: 0.9715066719651222
+                Testing with best model..
+                Test Acc: 0.97285333776474
+
+            - nsTr(1) < nsTest(5):
+              python train.py --cuda -nsTr 1 -nsVa 5 -nep 10 
+                Testing with last model..
+                Test Acc: 0.9940000038146972
+                Testing with best model..
+                Test Acc: 0.9934800040125847
+
+
+            ii) 5_shot:
+             - (default) nsTr(5) = nsTest(5): 
+              python train.py --cuda -nsTr 5 -nsVa 5 -nep 10
+                Testing with last model..
+                Test Acc: 0.992840004503727
+                Testing with best model..
+                Test Acc: 0.9932666710615158
+
+
+            - nsTr(5) > nsTest(1):
+              python train.py --cuda -nsTr 5 -nsVa 1 -nep 10 
+                Testing with last model..
+                Test Acc: 0.9629200053215027
+                Testing with best model..
+                Test Acc: 0.9637333385944367
+
+
+We have got a different findings with the authors: It may not always be the best to use same "shot" number for train and test set.
+As we can see from the results ii): equal shots outperforms the model network whose training shot is higher than test shot. 
+However, as we can see from results i): When there are more test shots than training shots, it actually performs better. 
+
+ 
+
+
