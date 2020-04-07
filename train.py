@@ -199,6 +199,7 @@ def main():
     Initialize everything and train
     '''
     options = get_parser().parse_args()
+    print(options)
     if not os.path.exists(options.experiment_root):
         os.makedirs(options.experiment_root)
 
