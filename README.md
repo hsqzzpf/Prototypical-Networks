@@ -16,11 +16,11 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 
 \* achieved by running `python train_miniImageNet.py --cuda -nsTr 1 -nsVa 1` (30 epochs)
 
-\*\* achieved by running `python train.py --cuda -nsTr 1 -nsVa 1` (30 epochs)
+\*\* achieved by running `python train_miniImageNet.py --cuda` (30 epochs)
 
-° achieved by running `python train.py --cuda -nsTr 1 -nsVa 1 -cVa 20` (50 epochs)
+° achieved by running `python3 train_miniImageNet.py --cuda -nsTr 1 -nsVa 1 -its 30` (50 epochs)
 
-°° achieved by running `python train.py --cuda -nsTr 5 -nsVa 5 -cVa 20` (50 epochs)
+°° achieved by running `python train_miniImageNet.py --cuda -its 20` (50 epochs)
 
 
 
