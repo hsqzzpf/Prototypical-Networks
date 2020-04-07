@@ -66,7 +66,7 @@ def init_optim(opt, model):
     Initialize optimizer
     '''
     return torch.optim.Adam(params=model.parameters(),
-                            lr=opt.learning_rate)
+                            lr=opt.learning_rate, weight_decay=0.02)
 
 
 def init_lr_scheduler(opt, optim):
@@ -111,6 +111,11 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
+            # ---------------
+            weights = model.parameters()
+            # print(weights)
+            # ---------------
+
             loss, acc = loss_fn(model_output, target=y,
                                 n_support=opt.num_support_tr)
             loss.backward()
