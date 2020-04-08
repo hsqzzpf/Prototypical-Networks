@@ -240,8 +240,8 @@ def main():
 
     distance_fn = "cosine" if options.distance_fn==0 else "euclidean"
 
-    train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn)
-    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn)
+    train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn, options.regularizer)
+    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn. options.regularizer)
 
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,

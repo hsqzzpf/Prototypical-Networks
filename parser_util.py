@@ -89,4 +89,9 @@ def get_parser():
                         help='models to choose, 1 represent protonet, 2 represent protoresnet',
                         default=1)
 
+    parser.add_argument('-reg', '--regularizer'
+                        type=float,
+                        help='regularize in loss',
+                        default=0)
+
     return parser

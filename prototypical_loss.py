@@ -46,7 +46,7 @@ class PrototypicalLoss(Module):
     '''
     Loss class deriving from Module for the prototypical loss function defined below
     '''
-    def __init__(self, n_support, dist_func):
+    def __init__(self, n_support, dist_func, reg):
         super(PrototypicalLoss, self).__init__()
         self.n_support = n_support
         if dist_func == "cosine":
@@ -55,12 +55,13 @@ class PrototypicalLoss(Module):
             self.dist_func = euclidean
         else:
             self.dist_func = None
+        self.reg = reg
 
     def forward(self, input, target, weights):
-        return prototypical_loss(input, target, self.n_support, weights=weights, dist_func=self.dist_func)
+        return prototypical_loss(input, target, self.n_support, weights=weights, dist_func=self.dist_func, lambda_reg=self.reg)
 
 
-def prototypical_loss(input, target, n_support, weights=None, dist_func=euclidean):
+def prototypical_loss(input, target, n_support, weights, dist_func=euclidean, lambda_reg=0.05):
     '''
     Inspired by https://github.com/jakesnell/prototypical-networks/blob/master/protonets/models/few_shot.py
 
@@ -107,7 +108,6 @@ def prototypical_loss(input, target, n_support, weights=None, dist_func=euclidea
 
     # loss_val = -log_p_y.gather(2, target_inds).squeeze().view(-1).mean()
     # --------------------------
-    lambda_reg = 0.05
     reg = 0
     if weights:
         for param in weights:
