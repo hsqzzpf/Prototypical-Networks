@@ -98,9 +98,7 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 
 ## Performances (MiniImageNet Dataset)
 
-Download images from: https://drive.google.com/open?id=0B3Irx3uQNoBMQ1FlNXJsZUdYWEE
-
-Put the upzipped `images` folder inside `miniImageNet` folder
+Images from: https://drive.google.com/open?id=0B3Irx3uQNoBMQ1FlNXJsZUdYWEE
 
 We are trying to reproduce the reference paper performaces, we'll update here our best results. 
 
