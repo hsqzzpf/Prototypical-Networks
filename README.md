@@ -120,7 +120,7 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 | 93.0% | 1-shot (5-way Acc.) | 10 | 5 | 
 | 88.6% | 1-shot (5-way Acc.) | 10 | 5 | 
 
-\* All of the models are trained undel epoch = 10
+\* All of the models are trained under 10 epochs
 
 ## Compare the effect of number of supporting test samples for a fixed 'shot' model
 
@@ -130,6 +130,8 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 | 99.3% | 1-shot (5-way Acc.) | 1 | 5 | 
 | 99.3% | 5-shot (5-way Acc.) | 5 | 5 | 
 | 96.4% | 5-shot (5-way Acc.) | 5 | 1 | 
+
+\* All of the models are trained under 10 epochs 
 
 
 
