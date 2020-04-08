@@ -84,7 +84,7 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 | --- | --- | --- | --- | --- |
 | Reference Paper | 98.8% | 99.7% | 96.0% | 98.9%|
 | This repo | 98.5%** | 99.6%* | 95.1%°| 98.6%°°|
-
+| with Cosine Distance | 81.8% | 85.2% | 59.5% | 68.8% |
 
 
 \* achieved using default parameters (using `--cuda` option)
@@ -114,6 +114,26 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 ° achieved by running `python3 train_miniImageNet.py --cuda -nsTr 1 -nsVa 1 -its 30` (50 epochs)
 
 °° achieved by running `python train_miniImageNet.py --cuda -its 20` (50 epochs)
+
+
+## Compare the effect of number of training class for a fixed 'way' model
+| Accuracy | Model | classes_per_it_tr | classes_per_it_val | 
+| --- | --- | --- | --- | 
+| 97.3% | 1-shot (5-way Acc.) | 60 | 5 | 
+| 95.7% | 1-shot (5-way Acc.) | 25 | 5 | 
+| 93.0% | 1-shot (5-way Acc.) | 10 | 5 | 
+| 88.6% | 1-shot (5-way Acc.) | 10 | 5 | 
+
+\* All of the models are trained undel epoch = 10
+
+## Compare the effect of number of supporting test samples for a fixed 'shot' model
+
+| Accuracy | Model | num_support_tr | num_support_val | 
+| --- | --- | --- | --- | 
+| 97.3% | 1-shot (5-way Acc.) | 1 | 1 | 
+| 99.3% | 1-shot (5-way Acc.) | 1 | 5 | 
+| 99.3% | 5-shot (5-way Acc.) | 5 | 5 | 
+| 96.4% | 5-shot (5-way Acc.) | 5 | 1 | 
 
 
 
