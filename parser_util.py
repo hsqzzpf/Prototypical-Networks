@@ -94,4 +94,8 @@ def get_parser():
                         help='regularize in loss',
                         default=0)
 
+    parser.add_argument('--dataset'
+                        type=int,
+                        help='0: Omniglot; 1: miniImageSet',
+                        default=0)
     return parser

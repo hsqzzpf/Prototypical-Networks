@@ -2,6 +2,7 @@
 from prototypical_batch_sampler import PrototypicalBatchSampler
 from prototypical_loss import PrototypicalLoss
 from omniglot_dataset import OmniglotDataset
+from miniImageNet_dataset import MiniImageNet
 from protonet import ProtoNet, ProtoResNet
 from parser_util import get_parser
 
@@ -22,12 +23,23 @@ def init_seed(opt):
 
 
 def init_dataset(opt, mode):
-    dataset = OmniglotDataset(mode=mode, root=opt.dataset_root)
-    n_classes = len(np.unique(dataset.y))
-    if n_classes < opt.classes_per_it_tr or n_classes < opt.classes_per_it_val:
-        raise(Exception('There are not enough classes in the dataset in order ' +
-                        'to satisfy the chosen classes_per_it. Decrease the ' +
-                        'classes_per_it_{tr/val} option and try again.'))
+
+    if opt.dataset == 0:
+        dataset = OmniglotDataset(mode=mode, root=opt.dataset_root)
+        n_classes = len(np.unique(dataset.y))
+        if n_classes < opt.classes_per_it_tr or n_classes < opt.classes_per_it_val:
+            raise(Exception('There are not enough classes in the dataset in order ' +
+                            'to satisfy the chosen classes_per_it. Decrease the ' +
+                            'classes_per_it_{tr/val} option and try again.'))
+    elif opt.dataset == 1:
+        dataset = MiniImageNet(mode=mode, root=opt.dataset_root)
+        n_classes = len(dataset.wnids)
+        if n_classes < opt.classes_per_it_tr or n_classes < opt.classes_per_it_val:
+            raise(Exception('There are not enough classes in the dataset in order ' +
+                            'to satisfy the chosen classes_per_it. Decrease the ' +
+                            'classes_per_it_{tr/val} option and try again.'))
+    else:
+        raise(Exception("No such dataset!!"))
     return dataset
 
 
@@ -58,10 +70,18 @@ def init_protonet(opt):
     '''
     device = 'cuda:0' if torch.cuda.is_available() and opt.cuda else 'cpu'
 
-    if opt.net == 1:
-        model = ProtoNet().to(device)
-    elif opt.net == 2:
-        model = ProtoResNet().to(device)
+    if opt.dataset == 0:
+        if opt.net == 1:
+            model = ProtoNet().to(device)
+        elif opt.net == 2:
+            model = ProtoResNet().to(device)
+    elif opt.dataset == 1:
+        if opt.net == 1:
+            model = ProtoNet(x_dim=3).to(device)
+        elif opt.net == 2:
+            model = ProtoResNet(x_dim=3).to(device)
+    else:
+        raise(Exception("No such dataset!!"))
     return model
 
 
@@ -70,8 +90,7 @@ def init_optim(opt, model):
     Initialize optimizer
     '''
     return torch.optim.Adam(params=model.parameters(),
-                            lr=opt.learning_rate,)
-                            # weight_decay=0.02)
+                            lr=opt.learning_rate)
 
 
 def init_lr_scheduler(opt, optim):
@@ -116,13 +135,10 @@ def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloade
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            # ---------------
+
             weights = model.parameters()
             loss, acc = loss_fn(model_output, y, weights)
-            # ---------------
 
-            # loss, acc = loss_fn(model_output, target=y,
-            #                     n_support=opt.num_support_tr)
             loss.backward()
             optim.step()
             train_loss.append(loss.item())
@@ -139,11 +155,9 @@ def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloade
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            # ---------------
+            
             weights = model.parameters()
             loss, acc = loss_fn(model_output, y, weights)
-            # loss, acc = loss_fn(model_output, y,
-            #                     opt.num_support_tr，weights=weights)
            
             val_loss.append(loss.item())
             val_acc.append(acc.item())
@@ -179,15 +193,10 @@ def test(opt, test_dataloader, model, loss_fn):
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            # ---------------
-            weights = model.parameters()
 
+            weights = model.parameters()
             _, acc = loss_fn(model_output, y, weights)
-            # _, acc = loss_fn(model_output, y,
-            #                     opt.num_support_tr, weights=weights)
-            # ---------------
-            # _, acc = loss_fn(model_output, target=y,
-            #                  n_support=opt.num_support_val)
+
             avg_acc.append(acc.item())
     avg_acc = np.mean(avg_acc)
     print('Test Acc: {}'.format(avg_acc))
@@ -215,11 +224,8 @@ def eval(opt):
          model=model)
 
 
-def main():
-    '''
-    Initialize everything and train
-    '''
-    options = get_parser().parse_args()
+if __name__ == '__main__':
+        options = get_parser().parse_args()
     print(options)
     if not os.path.exists(options.experiment_root):
         os.makedirs(options.experiment_root)
@@ -231,7 +237,6 @@ def main():
 
     tr_dataloader = init_dataloader(options, 'train')
     val_dataloader = init_dataloader(options, 'val')
-    # trainval_dataloader = init_dataloader(options, 'trainval')
     test_dataloader = init_dataloader(options, 'test')
 
     model = init_protonet(options)
@@ -264,22 +269,3 @@ def main():
          model=model,
          loss_fn=test_loss_fn)
 
-    # optim = init_optim(options, model)
-    # lr_scheduler = init_lr_scheduler(options, optim)
-
-    # print('Training on train+val set..')
-    # train(opt=options,
-    #       tr_dataloader=trainval_dataloader,
-    #       val_dataloader=None,
-    #       model=model,
-    #       optim=optim,
-    #       lr_scheduler=lr_scheduler)
-
-    # print('Testing final model..')
-    # test(opt=options,
-    #      test_dataloader=test_dataloader,
-    #      model=model)
-
-
-if __name__ == '__main__':
-    main()

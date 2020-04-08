@@ -1,6 +1,6 @@
 # coding=utf-8
 from prototypical_batch_sampler import PrototypicalBatchSampler
-from prototypical_loss import prototypical_loss as loss_fn
+from prototypical_loss import PrototypicalLoss
 from miniImageNet_dataset import MiniImageNet
 from protonet import ProtoNet
 from parser_util import get_parser
@@ -24,6 +24,10 @@ def init_seed(opt):
 def init_dataset(opt, mode):
     dataset = MiniImageNet(mode)
     n_classes = len(dataset.wnids)
+    if n_classes < opt.classes_per_it_tr or n_classes < opt.classes_per_it_val:
+        raise(Exception('There are not enough classes in the dataset in order ' +
+                        'to satisfy the chosen classes_per_it. Decrease the ' +
+                        'classes_per_it_{tr/val} option and try again.'))
     return dataset
 
 
@@ -54,6 +58,10 @@ def init_protonet(opt):
     '''
     device = 'cuda:0' if torch.cuda.is_available() and opt.cuda else 'cpu'
     model = ProtoNet(x_dim=3).to(device)
+
+
+
+
     return model
 
 
@@ -107,8 +115,10 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            loss, acc = loss_fn(model_output, target=y,
-                                n_support=opt.num_support_tr)
+
+            weights = model.parameters()
+            loss, acc = loss_fn(model_output, y, weights)
+
             loss.backward()
             optim.step()
             train_loss.append(loss.item())
@@ -125,8 +135,10 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            loss, acc = loss_fn(model_output, target=y,
-                                n_support=opt.num_support_val)
+
+            weights = model.parameters()
+            loss, acc = loss_fn(model_output, y, weights)
+
             val_loss.append(loss.item())
             val_acc.append(acc.item())
         avg_loss = np.mean(val_loss[-opt.iterations:])
@@ -161,8 +173,10 @@ def test(opt, test_dataloader, model):
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            _, acc = loss_fn(model_output, target=y,
-                             n_support=opt.num_support_val)
+
+            weights = model.parameters()
+            _, acc = loss_fn(model_output, y, weights)
+
             avg_acc.append(acc.item())
     avg_acc = np.mean(avg_acc)
     print('Test Acc: {}'.format(avg_acc))
@@ -190,11 +204,9 @@ def eval(opt):
          model=model)
 
 
-def main():
-    '''
-    Initialize everything and train
-    '''
+if __name__ == '__main__':
     options = get_parser().parse_args()
+    print(options)
     if not os.path.exists(options.experiment_root):
         os.makedirs(options.experiment_root)
 
@@ -205,46 +217,34 @@ def main():
 
     tr_dataloader = init_dataloader(options, 'train')
     val_dataloader = init_dataloader(options, 'val')
-    # trainval_dataloader = init_dataloader(options, 'trainval')
     test_dataloader = init_dataloader(options, 'test')
 
     model = init_protonet(options)
     optim = init_optim(options, model)
     lr_scheduler = init_lr_scheduler(options, optim)
+
+    distance_fn = "cosine" if options.distance_fn==0 else "euclidean"
+
+    train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn, options.regularizer)
+    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn. options.regularizer)
+
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,
                 val_dataloader=val_dataloader,
                 model=model,
+                loss_fn=train_loss_fn,
                 optim=optim,
                 lr_scheduler=lr_scheduler)
     best_state, best_acc, train_loss, train_acc, val_loss, val_acc = res
     print('Testing with last model..')
     test(opt=options,
          test_dataloader=test_dataloader,
-         model=model)
+         model=model,
+         loss_fn=test_loss_fn)
 
     model.load_state_dict(best_state)
     print('Testing with best model..')
     test(opt=options,
          test_dataloader=test_dataloader,
-         model=model)
-
-    # optim = init_optim(options, model)
-    # lr_scheduler = init_lr_scheduler(options, optim)
-
-    # print('Training on train+val set..')
-    # train(opt=options,
-    #       tr_dataloader=trainval_dataloader,
-    #       val_dataloader=None,
-    #       model=model,
-    #       optim=optim,
-    #       lr_scheduler=lr_scheduler)
-
-    # print('Testing final model..')
-    # test(opt=options,
-    #      test_dataloader=test_dataloader,
-    #      model=model)
-
-
-if __name__ == '__main__':
-    main()
+         model=model,
+         loss_fn=test_loss_fn)
