@@ -102,8 +102,8 @@ Images from: https://drive.google.com/open?id=0B3Irx3uQNoBMQ1FlNXJsZUdYWEE
 
 We are trying to reproduce the reference paper performaces, we'll update here our best results. 
 
-| Model | 1-shot (5-way Acc. 100 iters) | 5-shot (5-way Acc. 100 iters) | 1-shot (5-way Acc. 30 iters) | 5-shot (5-way Acc. 20 iters)|
-| --- | --- | --- | --- | --- |
+| Model | 1-shot (5-way Acc.) | 5-shot (5-way Acc.) |
+| --- | --- | --- |
 | Reference Paper | 49.42% | 68.20%|
 | This repo | 42.48%* | 64.7%** |
 
