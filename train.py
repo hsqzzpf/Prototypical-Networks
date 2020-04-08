@@ -2,8 +2,7 @@
 from prototypical_batch_sampler import PrototypicalBatchSampler
 from prototypical_loss import prototypical_loss as loss_fn
 from omniglot_dataset import OmniglotDataset
-from protonet import ProtoNet
-from protonet_resnet import ProtoResNet
+from protonet import ProtoNet, ProtoResNet
 from parser_util import get_parser
 
 from tqdm import tqdm
@@ -58,7 +57,11 @@ def init_protonet(opt):
     Initialize the ProtoNet
     '''
     device = 'cuda:0' if torch.cuda.is_available() and opt.cuda else 'cpu'
-    model = ProtoResNet().to(device)
+
+    if opt.net == 1:
+        model = ProtoNet().to(device)
+    elif opt.net == 2:
+        model = ProtoResNet().to(device)
     return model
 
 

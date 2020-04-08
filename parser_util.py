@@ -79,4 +79,9 @@ def get_parser():
                         action='store_true',
                         help='enables cuda')
 
+    parser.add_argument('--net',
+                        type=int,
+                        help='models to choose, 1 represent protonet, 2 represent protoresnet',
+                        default=1)
+
     return parser
