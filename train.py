@@ -32,9 +32,17 @@ def init_dataset(opt, mode):
                             'to satisfy the chosen classes_per_it. Decrease the ' +
                             'classes_per_it_{tr/val} option and try again.'))
     elif opt.dataset == 1:
-        dataset = MiniImageNet(mode=mode, root=opt.dataset_root)
+        dataset = MiniImageNet(mode)
         n_classes = len(dataset.wnids)
-        if n_classes < opt.classes_per_it_tr or n_classes < opt.classes_per_it_val:
+        if mode == "train" and n_classes < opt.classes_per_it_tr:
+            raise(Exception('There are not enough classes in the dataset in order ' +
+                            'to satisfy the chosen classes_per_it. Decrease the ' +
+                            'classes_per_it_{tr/val} option and try again.'))
+        elif mode == "val" and n_classes < opt.classes_per_it_val:
+            raise(Exception('There are not enough classes in the dataset in order ' +
+                            'to satisfy the chosen classes_per_it. Decrease the ' +
+                            'classes_per_it_{tr/val} option and try again.'))
+        elif mode == "test" and n_classes < opt.classes_per_it_val:
             raise(Exception('There are not enough classes in the dataset in order ' +
                             'to satisfy the chosen classes_per_it. Decrease the ' +
                             'classes_per_it_{tr/val} option and try again.'))
@@ -218,14 +226,17 @@ def eval(opt):
     model = init_protonet(options)
     model_path = os.path.join(opt.experiment_root, 'best_model.pth')
     model.load_state_dict(torch.load(model_path))
-
+    
+    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn, options.regularizer)
+    
     test(opt=options,
          test_dataloader=test_dataloader,
-         model=model)
+         model=model,
+         loss_fn=test_loss_fn)
 
 
 if __name__ == '__main__':
-        options = get_parser().parse_args()
+    options = get_parser().parse_args()
     print(options)
     if not os.path.exists(options.experiment_root):
         os.makedirs(options.experiment_root)
@@ -246,7 +257,7 @@ if __name__ == '__main__':
     distance_fn = "cosine" if options.distance_fn==0 else "euclidean"
 
     train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn, options.regularizer)
-    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn. options.regularizer)
+    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn, options.regularizer)
 
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,

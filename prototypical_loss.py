@@ -109,10 +109,11 @@ def prototypical_loss(input, target, n_support, weights, dist_func=euclidean, la
     # loss_val = -log_p_y.gather(2, target_inds).squeeze().view(-1).mean()
     # --------------------------
     reg = 0
-    if weights:
-        for param in weights:
-            reg += torch.sum(0.5*(param**2))  # L2 regularization
+    for param in weights:
+        param = param.to('cpu')
+        reg += torch.sum(0.5*(param**2))  # L2 regularization
         # reg += torch.sum(torch.abs(param))  # L1 regularization
+        
     loss_val = -log_p_y.gather(2, target_inds).squeeze().view(-1).mean() + lambda_reg*reg
     # --------------------------
 

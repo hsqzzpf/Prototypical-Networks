@@ -89,12 +89,12 @@ def get_parser():
                         help='models to choose, 1 represent protonet, 2 represent protoresnet',
                         default=1)
 
-    parser.add_argument('-reg', '--regularizer'
+    parser.add_argument('-reg', '--regularizer',
                         type=float,
                         help='regularize in loss',
                         default=0)
 
-    parser.add_argument('--dataset'
+    parser.add_argument('--dataset',
                         type=int,
                         help='0: Omniglot; 1: miniImageSet',
                         default=0)

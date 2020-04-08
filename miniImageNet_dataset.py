@@ -43,6 +43,7 @@ class MiniImageNet(Dataset):
 
         self.data = data
         self.label = label
+        self.y = label
 
         self.transform = transforms.Compose([
             transforms.Resize(84),
