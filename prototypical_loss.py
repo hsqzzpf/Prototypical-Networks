@@ -4,19 +4,7 @@ from torch.nn import functional as F
 from torch.nn.modules import Module
 
 
-class PrototypicalLoss(Module):
-    '''
-    Loss class deriving from Module for the prototypical loss function defined below
-    '''
-    def __init__(self, n_support):
-        super(PrototypicalLoss, self).__init__()
-        self.n_support = n_support
-
-    def forward(self, input, target):
-        return prototypical_loss(input, target, self.n_support)
-
-
-def euclidean_dist(x, y):
+def euclidean(x, y):
     '''
     Compute euclidean distance between two tensors
     '''
@@ -34,7 +22,7 @@ def euclidean_dist(x, y):
     return torch.pow(x - y, 2).sum(2)
 
 
-def consine_simi(x, y):
+def consine(x, y):
     '''
     Compute consine similarity between two tensors
     '''
@@ -47,19 +35,32 @@ def consine_simi(x, y):
         raise Exception
 
     x = x.unsqueeze(1).expand(n, m, d)
-    
     y = y.unsqueeze(0).expand(n, m, d)
-    
-    # denominater = torch.sqrt(torch.pow(x,2).sum() + torch.pow(y,2).sum())
-    
-    # return ((x*y).sum(2))/denominater
 
     cos = torch.nn.CosineSimilarity(dim=2,eps=1e-6)
 
     return cos(x,y)
 
 
-def prototypical_loss(input, target, n_support, weights=None):
+class PrototypicalLoss(Module):
+    '''
+    Loss class deriving from Module for the prototypical loss function defined below
+    '''
+    def __init__(self, n_support, dist_func):
+        super(PrototypicalLoss, self).__init__()
+        self.n_support = n_support
+        if dist_func == "cosine":
+            self.dist_func = cosine
+        elif dist_func == "euclidean":
+            self.dist_func = cosine
+        else:
+            self.dist_func = None
+
+    def forward(self, input, target, weights):
+        return prototypical_loss(input, target, self.n_support, weights=weights, dist_func=self.dist_func)
+
+
+def prototypical_loss(input, target, n_support, weights=None, dist_func=euclidean):
     '''
     Inspired by https://github.com/jakesnell/prototypical-networks/blob/master/protonets/models/few_shot.py
 
@@ -96,8 +97,7 @@ def prototypical_loss(input, target, n_support, weights=None):
     query_idxs = torch.stack(list(map(lambda c: target_cpu.eq(c).nonzero()[n_support:], classes))).view(-1)
 
     query_samples = input.to('cpu')[query_idxs]
-    dists = euclidean_dist(query_samples, prototypes)
-    # dists =-consine_simi(query_samples, prototypes)
+    dists = dist_func(query_samples, prototypes)
 
     log_p_y = F.log_softmax(-dists, dim=1).view(n_classes, n_query, -1)
 

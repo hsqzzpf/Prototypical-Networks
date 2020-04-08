@@ -1,6 +1,6 @@
 # coding=utf-8
 from prototypical_batch_sampler import PrototypicalBatchSampler
-from prototypical_loss import prototypical_loss as loss_fn
+from prototypical_loss import PrototypicalLoss
 from omniglot_dataset import OmniglotDataset
 from protonet import ProtoNet, ProtoResNet
 from parser_util import get_parser
@@ -89,7 +89,7 @@ def save_list_to_file(path, thelist):
             f.write("%s\n" % item)
 
 
-def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
+def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloader=None):
     '''
     Train the model with the prototypical learning algorithm
     '''
@@ -118,8 +118,8 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
             model_output = model(x)
             # ---------------
             weights = model.parameters()
-            loss, acc = loss_fn(weights, model_output, target=y,
-                                n_support=opt.num_support_tr)
+            loss, acc = loss_fn(model_output, target=y,
+                                n_support=opt.num_support_tr，weights=weights)
             # ---------------
 
             # loss, acc = loss_fn(model_output, target=y,
@@ -142,11 +142,11 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
             model_output = model(x)
             # ---------------
             weights = model.parameters()
-            loss, acc = loss_fn(weights, model_output, target=y,
-                                n_support=opt.num_support_tr)
-            # ---------------
-            # loss, acc = loss_fn(model_output, target=y,
-            #                     n_support=opt.num_support_val)
+            loss, acc = loss_fn(model_output, y,
+                                weights=weights)
+            # loss, acc = loss_fn(model_output, y,
+            #                     opt.num_support_tr，weights=weights)
+           
             val_loss.append(loss.item())
             val_acc.append(acc.item())
         avg_loss = np.mean(val_loss[-opt.iterations:])
@@ -169,7 +169,7 @@ def train(opt, tr_dataloader, model, optim, lr_scheduler, val_dataloader=None):
     return best_state, best_acc, train_loss, train_acc, val_loss, val_acc
 
 
-def test(opt, test_dataloader, model):
+def test(opt, test_dataloader, model, loss_fn):
     '''
     Test the model trained with the prototypical learning algorithm
     '''
@@ -183,8 +183,11 @@ def test(opt, test_dataloader, model):
             model_output = model(x)
             # ---------------
             weights = model.parameters()
-            _, acc = loss_fn(weights, model_output, target=y,
-                                n_support=opt.num_support_tr)
+
+            _, acc = loss_fn(model_output, y,
+                                weights=weights)
+            # _, acc = loss_fn(model_output, y,
+            #                     opt.num_support_tr, weights=weights)
             # ---------------
             # _, acc = loss_fn(model_output, target=y,
             #                  n_support=opt.num_support_val)
@@ -237,6 +240,10 @@ def main():
     model = init_protonet(options)
     optim = init_optim(options, model)
     lr_scheduler = init_lr_scheduler(options, optim)
+
+    train_loss_fn = PrototypicalLoss(options.num_support_tr, "cosine")
+    train_loss_fn = PrototypicalLoss(options.num_support_vals, "cosine")
+
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,
                 val_dataloader=val_dataloader,
