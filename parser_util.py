@@ -75,6 +75,11 @@ def get_parser():
                         help='input for the manual seeds initializations',
                         default=7)
 
+    parser.add_argument('-distance', '--distance_fn',
+                        type=int,
+                        help='0: cosine, 1: euclidean',
+                        default=0)
+
     parser.add_argument('--cuda',
                         action='store_true',
                         help='enables cuda')

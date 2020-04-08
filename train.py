@@ -241,8 +241,10 @@ def main():
     optim = init_optim(options, model)
     lr_scheduler = init_lr_scheduler(options, optim)
 
-    train_loss_fn = PrototypicalLoss(options.num_support_tr, "cosine")
-    train_loss_fn = PrototypicalLoss(options.num_support_vals, "cosine")
+    distance_fn = "cosine" if options.distance_fn==0 else "euclidean"
+
+    train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn)
+    train_loss_fn = PrototypicalLoss(options.num_support_vals, distance_fn)
 
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,
