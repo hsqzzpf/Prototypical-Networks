@@ -22,7 +22,7 @@ def euclidean(x, y):
     return torch.pow(x - y, 2).sum(2)
 
 
-def consine(x, y):
+def cosine(x, y):
     '''
     Compute consine similarity between two tensors
     '''
@@ -52,7 +52,7 @@ class PrototypicalLoss(Module):
         if dist_func == "cosine":
             self.dist_func = cosine
         elif dist_func == "euclidean":
-            self.dist_func = cosine
+            self.dist_func = euclidean
         else:
             self.dist_func = None
 
@@ -109,7 +109,7 @@ def prototypical_loss(input, target, n_support, weights=None, dist_func=euclidea
     # --------------------------
     lambda_reg = 0.05
     reg = 0
-    if not weights:
+    if weights:
         for param in weights:
             reg += torch.sum(0.5*(param**2))  # L2 regularization
         # reg += torch.sum(torch.abs(param))  # L1 regularization

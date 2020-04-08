@@ -118,8 +118,7 @@ def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloade
             model_output = model(x)
             # ---------------
             weights = model.parameters()
-            loss, acc = loss_fn(model_output, target=y,
-                                n_support=opt.num_support_tr，weights=weights)
+            loss, acc = loss_fn(model_output, y, weights)
             # ---------------
 
             # loss, acc = loss_fn(model_output, target=y,
@@ -142,8 +141,7 @@ def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloade
             model_output = model(x)
             # ---------------
             weights = model.parameters()
-            loss, acc = loss_fn(model_output, y,
-                                weights=weights)
+            loss, acc = loss_fn(model_output, y, weights)
             # loss, acc = loss_fn(model_output, y,
             #                     opt.num_support_tr，weights=weights)
            
@@ -184,8 +182,7 @@ def test(opt, test_dataloader, model, loss_fn):
             # ---------------
             weights = model.parameters()
 
-            _, acc = loss_fn(model_output, y,
-                                weights=weights)
+            _, acc = loss_fn(model_output, y, weights)
             # _, acc = loss_fn(model_output, y,
             #                     opt.num_support_tr, weights=weights)
             # ---------------
@@ -244,25 +241,28 @@ def main():
     distance_fn = "cosine" if options.distance_fn==0 else "euclidean"
 
     train_loss_fn = PrototypicalLoss(options.num_support_tr, distance_fn)
-    train_loss_fn = PrototypicalLoss(options.num_support_vals, distance_fn)
+    test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn)
 
     res = train(opt=options,
                 tr_dataloader=tr_dataloader,
                 val_dataloader=val_dataloader,
                 model=model,
+                loss_fn=train_loss_fn,
                 optim=optim,
                 lr_scheduler=lr_scheduler)
     best_state, best_acc, train_loss, train_acc, val_loss, val_acc = res
     print('Testing with last model..')
     test(opt=options,
          test_dataloader=test_dataloader,
-         model=model)
+         model=model,
+         loss_fn=test_loss_fn)
 
     model.load_state_dict(best_state)
     print('Testing with best model..')
     test(opt=options,
          test_dataloader=test_dataloader,
-         model=model)
+         model=model,
+         loss_fn=test_loss_fn)
 
     # optim = init_optim(options, model)
     # lr_scheduler = init_lr_scheduler(options, optim)
