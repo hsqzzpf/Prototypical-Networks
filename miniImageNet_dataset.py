@@ -11,9 +11,6 @@ ROOT_PATH = 'miniImageNet/'
 image_path = "images.zip"
 
 class MiniImageNet(Dataset):
-
-    
-
     def __init__(self, setname, download = True):
         self.url = "https://drive.google.com/uc?export=download&id=0B3Irx3uQNoBMQ1FlNXJsZUdYWEE"
         id_index = self.url.index('id=') + 2
@@ -86,7 +83,7 @@ class MiniImageNet(Dataset):
                     if chunk: # filter out keep-alive new chunks
                         f.write(chunk)
 
-        
+
 
         session = requests.Session()
 
@@ -97,7 +94,7 @@ class MiniImageNet(Dataset):
             params = { 'id' : self.id, 'confirm' : token }
             response = session.get(self.url, params = params, stream = True)
 
-        save_response_content(response)  
+        save_response_content(response)
         print("Finish Download Dataset")
 
         print("Start Unzipping images.zip...")
@@ -105,5 +102,3 @@ class MiniImageNet(Dataset):
         zip_ref.extractall(ROOT_PATH)
         zip_ref.close()
         print("Finish Unzip")
-
-    
