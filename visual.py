@@ -22,6 +22,7 @@ https://towardsdatascience.com/visualising-high-dimensional-datasets-using-pca-a
 def init_dataset(opt):
     if opt.dataset == 0:
         dataset = pd.read_csv("data2visual/omniglot_test.csv")
+        # dataset = pd.read_csv("data2visual/omniglot_test_least_loss.csv")
     elif opt.dataset == 1:
         dataset = pd.read_csv("data2visual/omniglot_test.csv")
         # havent finish yet
@@ -93,9 +94,12 @@ def pca(df):
 
 def load_omniglot_data(opt):
     ordered_loss_dict = torch.load('ordered_loss_dict.pt', map_location=lambda storage, loc: storage)
+    # print(ordered_loss_dict)
 
     top = ordered_loss_dict.popitem()
     top = np.array(top[0])
+    low = np.array(next(iter(ordered_loss_dict)))
+
 
     # load class directory
     class_dict = np.load("idx.npy")
@@ -119,7 +123,7 @@ def load_omniglot_data(opt):
     top_data = pd.DataFrame(df_data)
     top_data = top_data.rename(columns = {0:'label'})
     # print(top_data)
-    top_data.to_csv("data2visual/omniglot_test.csv")
+    top_data.to_csv("data2visual/omniglot_test_least_loss.csv")
 
     # return top_data
 
@@ -148,6 +152,7 @@ def load_img(path):
 
 if __name__ == "__main__":
     options = get_parser().parse_args()
+    # load_omniglot_data(options)
 
     if not os.path.exists(options.experiment_root):
         os.makedirs(options.experiment_root)
