@@ -1,5 +1,5 @@
 # coding=utf-8
-from prototypical_batch_₩er import PrototypicalBatchSampler
+from prototypical_batch_sampler import PrototypicalBatchSampler
 from prototypical_loss import PrototypicalLoss
 from omniglot_dataset import OmniglotDataset
 from miniImageNet_dataset import MiniImageNet
@@ -290,7 +290,7 @@ if __name__ == '__main__':
                 optim=optim,
                 lr_scheduler=lr_scheduler)
     best_state, best_acc, train_loss, train_acc, val_loss, val_acc = res
-    
+
     # print('Testing with last model..')
     # test(opt=options,
     #      test_dataloader=test_dataloader,
