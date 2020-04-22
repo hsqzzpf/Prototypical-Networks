@@ -236,6 +236,7 @@ def eval(opt):
          model=model,
          loss_fn=test_loss_fn)
 
+
 def visual_data(opt, test_dataloader, model, loss_fn):
     '''
     Get data for visualization from the model trained with the prototypical learning algorithm
