@@ -150,16 +150,29 @@ def load_img(path):
     return img_list
 
 
+def find_class(num):
+    class_dict = np.load("idx.npy")
+    class_dict = class_dict.item()
+
+    for key, value in class_dict.items():
+        if value == num:
+            print(key)
+            break
+    # e.g. 175 -> Oriya/character30/rot270
+
+
 if __name__ == "__main__":
-    options = get_parser().parse_args()
+    # options = get_parser().parse_args()
     # load_omniglot_data(options)
 
-    if not os.path.exists(options.experiment_root):
-        os.makedirs(options.experiment_root)
+    # if not os.path.exists(options.experiment_root):
+    #     os.makedirs(options.experiment_root)
 
-    dataset = init_dataset(options)
+    # dataset = init_dataset(options)
     # rndperm = np.random.permutation(dataset.shape[0])
     # dataset = dataset.loc[rndperm[:1000],:]
 
-    t_sne(dataset)
+    # t_sne(dataset)
     # pca(dataset)
+
+    find_class(175)
