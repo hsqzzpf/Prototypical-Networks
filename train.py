@@ -311,4 +311,5 @@ if __name__ == '__main__':
          model=model,
          loss_fn=test_loss_fn)
 
-    np.save("ordered_loss_dict", ordered_loss_dict)
+    # np.save("ordered_loss_dict", ordered_loss_dict)
+    torch.save(ordered_loss_dict, 'ordered_loss_dict.pt')

@@ -154,6 +154,8 @@ def index_classes(items):
         if (not i[1] + i[-1] in idx):
             idx[i[1] + i[-1]] = len(idx)
     print("== Dataset: Found %d classes" % len(idx))
+    print("Saving classes idx..")
+    np.save("idx", idx)
     return idx
 
 
