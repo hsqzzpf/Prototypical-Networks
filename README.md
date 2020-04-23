@@ -118,7 +118,7 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 | 97.3% | 1-shot (5-way Acc.) | 60 | 5 | 
 | 95.7% | 1-shot (5-way Acc.) | 25 | 5 | 
 | 93.0% | 1-shot (5-way Acc.) | 10 | 5 | 
-| 88.6% | 1-shot (5-way Acc.) | 10 | 5 | 
+| 88.6% | 1-shot (5-way Acc.) | 5 | 5 | 
 
 \* All of the models are trained under 10 epochs
 
