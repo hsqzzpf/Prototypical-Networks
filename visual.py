@@ -21,8 +21,8 @@ https://towardsdatascience.com/visualising-high-dimensional-datasets-using-pca-a
 
 def init_dataset(opt):
     if opt.dataset == 0:
-        dataset = pd.read_csv("data2visual/omniglot_test.csv")
-        # dataset = pd.read_csv("data2visual/omniglot_test_least_loss.csv")
+        # dataset = pd.read_csv("data2visual/omniglot_modelout_highloss.csv")
+        dataset = pd.read_csv("data2visual/omniglot_modelout_lowloss.csv")
     elif opt.dataset == 1:
         dataset = pd.read_csv("data2visual/omniglot_test.csv")
         # havent finish yet
@@ -39,7 +39,7 @@ def init_dataset(opt):
 
 def t_sne(df):
     feat_cols = dataset.columns.difference(['label', 'y'])
-    tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=300)
+    tsne = TSNE(n_components=2, verbose=1, perplexity=50, n_iter=300)
     tsne_results = tsne.fit_transform(df[feat_cols].values)
     df['tsne-2d-one'] = tsne_results[:,0]
     df['tsne-2d-two'] = tsne_results[:,1]
@@ -93,39 +93,58 @@ def pca(df):
 
 
 def load_omniglot_data(opt):
-    ordered_loss_dict = torch.load('ordered_loss_dict.pt', map_location=lambda storage, loc: storage)
+    # ordered_loss_dict = torch.load('ordered_loss_dict.pt', map_location=lambda storage, loc: storage)
     # print(ordered_loss_dict)
 
-    top = ordered_loss_dict.popitem()
-    top = np.array(top[0])
-    low = np.array(next(iter(ordered_loss_dict)))
+    # top = ordered_loss_dict.popitem()
+    # top = np.array(top[0])
+    # low = np.array(next(iter(ordered_loss_dict)))
 
+    top = torch.load('x_y_high.pt', map_location=lambda storage, loc: storage)
+    low = torch.load('x_y_low.pt', map_location=lambda storage, loc: storage)
 
     # load class directory
-    class_dict = np.load("idx.npy")
-    class_dict = class_dict.item()
+    # class_dict = np.load("idx.npy")
+    # class_dict = class_dict.item()
 
-    img_data = []
-    img_label = []
+    # img_data = []
+    # img_label = []
 
-    for key, value in class_dict.items():
-        if value in top:
-            img_label.append(value)
-            img_list = load_img(key)
-            img_data.append(img_list)
+    # for key, value in class_dict.items():
+    #     if value in top:
+    #         img_label.append(value)
+    #         img_list = load_img(key)
+    #         img_data.append(img_list)
+
+    # df_data = []
+    # for idx in range(len(img_label)):
+    #     for img_idx in range(len(img_data[idx])):
+    #         img_data[idx][img_idx].insert(0, img_label[idx])
+    #         df_data.append(img_data[idx][img_idx])
+
+
+    # model_out = np.array(top[0].detach().numpy()).tolist()
+    # y = np.array(top[1].detach().numpy()).tolist()
+
+    model_out = np.array(low[0].detach().numpy()).tolist()
+    y = np.array(low[1].detach().numpy()).tolist()
 
     df_data = []
-    for idx in range(len(img_label)):
-        for img_idx in range(len(img_data[idx])):
-            img_data[idx][img_idx].insert(0, img_label[idx])
-            df_data.append(img_data[idx][img_idx])
+    for out, label in zip(model_out, y):
+        out.insert(0, label)
+        df_data.append(out)
 
-    top_data = pd.DataFrame(df_data)
-    top_data = top_data.rename(columns = {0:'label'})
-    # print(top_data)
-    top_data.to_csv("data2visual/omniglot_test_least_loss.csv")
+    # top_data = pd.DataFrame(df_data)
+    # top_data = top_data.rename(columns = {0:'label'})
 
-    # return top_data
+    # top_data.to_csv("data2visual/omniglot_modelout_highloss.csv")
+
+    low_data = pd.DataFrame(df_data)
+    low_data = low_data.rename(columns = {0:'label'})
+
+    low_data.to_csv("data2visual/omniglot_modelout_lowloss.csv")
+
+    return low_data
 
 
 def load_img(path):
@@ -149,7 +168,6 @@ def load_img(path):
 
     return img_list
 
-
 def find_class(num):
     class_dict = np.load("idx.npy")
     class_dict = class_dict.item()
@@ -160,19 +178,18 @@ def find_class(num):
             break
     # e.g. 175 -> Oriya/character30/rot270
 
-
 if __name__ == "__main__":
-    # options = get_parser().parse_args()
+    options = get_parser().parse_args()
     # load_omniglot_data(options)
 
-    # if not os.path.exists(options.experiment_root):
-    #     os.makedirs(options.experiment_root)
+    if not os.path.exists(options.experiment_root):
+        os.makedirs(options.experiment_root)
 
-    # dataset = init_dataset(options)
+    dataset = init_dataset(options)
     # rndperm = np.random.permutation(dataset.shape[0])
     # dataset = dataset.loc[rndperm[:1000],:]
 
     # t_sne(dataset)
-    # pca(dataset)
+    pca(dataset)
 
-    find_class(175)
+    # find_class(175)
