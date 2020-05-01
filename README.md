@@ -85,7 +85,7 @@ We are trying to reproduce the reference paper performaces, we'll update here ou
 | Reference Paper | 98.8% | 99.7% | 96.0% | 98.9%|
 | This repo | 98.5%** | 99.6%* | 95.1%°| 98.6%°°|
 | with Cosine Distance | 81.8% | 85.2% | 59.5% | 68.8% |
-| Resnet50 | 99.3% | 97.9% | 92.0% | CUDA out of memory |
+| Resnet50 | 97.9% | 99.3% | 92.0% | CUDA out of memory |
 
 
 \* achieved using default parameters (using `--cuda` option)
