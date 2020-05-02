@@ -39,7 +39,7 @@ def cosine(x, y):
 
     cos = torch.nn.CosineSimilarity(dim=2,eps=1e-6)
 
-    return cos(x,y)
+    return -cos(x,y)
 
 
 class PrototypicalLoss(Module):
