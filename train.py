@@ -327,18 +327,18 @@ if __name__ == '__main__':
                 lr_scheduler=lr_scheduler)
     best_state, best_acc, train_loss, train_acc, val_loss, val_acc = res
 
-    # print('Testing with last model..')
-    # test(opt=options,
-    #      test_dataloader=test_dataloader,
-    #      model=model,
-    #      loss_fn=test_loss_fn)
-    #
-    # model.load_state_dict(best_state)
-    # print('Testing with best model..')
-    # test(opt=options,
-    #      test_dataloader=test_dataloader,
-    #      model=model,
-    #      loss_fn=test_loss_fn)
+    print('Testing with last model..')
+    test(opt=options,
+         test_dataloader=test_dataloader,
+         model=model,
+         loss_fn=test_loss_fn)
+    
+    model.load_state_dict(best_state)
+    print('Testing with best model..')
+    test(opt=options,
+         test_dataloader=test_dataloader,
+         model=model,
+         loss_fn=test_loss_fn)
 
     model.load_state_dict(best_state)
     
