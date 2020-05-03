@@ -94,7 +94,7 @@ def load_omniglot_data(mode="top"):
 
 
     # load class directory
-    class_dict = np.load("idx.npy")
+    class_dict = np.load("idx.npy",allow_pickle=True)
     class_dict = class_dict.item()
 
     img_data = []
