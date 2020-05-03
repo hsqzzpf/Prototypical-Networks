@@ -11,6 +11,8 @@ import numpy as np
 import torch
 import os
 
+from collections import OrderedDict
+
 
 def init_seed(opt):
     '''
@@ -163,10 +165,10 @@ def train(opt, tr_dataloader, model, loss_fn, optim, lr_scheduler, val_dataloade
             x, y = batch
             x, y = x.to(device), y.to(device)
             model_output = model(x)
-            
+
             weights = model.parameters()
             loss, acc = loss_fn(model_output, y, weights)
-           
+
             val_loss.append(loss.item())
             val_acc.append(acc.item())
         avg_loss = np.mean(val_loss[-opt.iterations:])
@@ -226,13 +228,67 @@ def eval(opt):
     model = init_protonet(options)
     model_path = os.path.join(opt.experiment_root, 'best_model.pth')
     model.load_state_dict(torch.load(model_path))
-    
+
     test_loss_fn = PrototypicalLoss(options.num_support_val, distance_fn, options.regularizer)
-    
+
     test(opt=options,
          test_dataloader=test_dataloader,
          model=model,
          loss_fn=test_loss_fn)
+
+
+# def visual_data(opt, test_dataloader, model, loss_fn):
+#     '''
+#     Get data for visualization from the model trained with the prototypical learning algorithm
+#     '''
+#     device = 'cuda:0' if torch.cuda.is_available() and opt.cuda else 'cpu'
+#     loss_dict = {}
+#     test_iter = iter(test_dataloader)
+
+#     high_old_loss = 0
+#     low_old_loss = 10
+
+#     for batch in test_iter:
+#         x, y = batch
+#         x, y = x.to(device), y.to(device)
+#         model_output = model(x)
+
+#         weights = model.parameters()
+#         new_loss, _ = loss_fn(model_output, y, weights)
+
+#         if high_old_loss < new_loss:
+#             x_y_high = [model_output, y]
+#             high_old_loss = new_loss
+
+#         if low_old_loss > new_loss:
+#             x_y_low = [model_output, y]
+#             low_old_loss = new_loss
+
+#     #     loss_dict[tuple([model_output, y])] = loss.item()
+#     # ordered_loss_dict = OrderedDict(sorted(loss_dict.items(), key=lambda x: x[1]))
+
+
+#     return x_y_low, x_y_high
+def visual_data(opt, test_dataloader, model, loss_fn):
+    '''
+    Get data for visualization from the model trained with the prototypical learning algorithm
+    '''
+    device = 'cuda:0' if torch.cuda.is_available() and opt.cuda else 'cpu'
+    loss_dict = {}
+    test_iter = iter(test_dataloader)
+    for batch in test_iter:
+        x, y = batch
+        x, y = x.to(device), y.to(device)
+        model_output = model(x)
+
+        weights = model.parameters()
+        loss, _ = loss_fn(model_output, y, weights)
+
+        loss_dict[tuple(y)] = loss.item()
+    ordered_loss_dict = OrderedDict(sorted(loss_dict.items(), key=lambda x: x[1]))
+
+
+    return ordered_loss_dict
 
 
 if __name__ == '__main__':
@@ -245,6 +301,9 @@ if __name__ == '__main__':
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
     init_seed(options)
+
+    # dataset = init_dataset(options, 'test')
+    # print(dataset[0])
 
     tr_dataloader = init_dataloader(options, 'train')
     val_dataloader = init_dataloader(options, 'val')
@@ -267,16 +326,28 @@ if __name__ == '__main__':
                 optim=optim,
                 lr_scheduler=lr_scheduler)
     best_state, best_acc, train_loss, train_acc, val_loss, val_acc = res
-    print('Testing with last model..')
-    test(opt=options,
-         test_dataloader=test_dataloader,
-         model=model,
-         loss_fn=test_loss_fn)
+
+    # print('Testing with last model..')
+    # test(opt=options,
+    #      test_dataloader=test_dataloader,
+    #      model=model,
+    #      loss_fn=test_loss_fn)
+    #
+    # model.load_state_dict(best_state)
+    # print('Testing with best model..')
+    # test(opt=options,
+    #      test_dataloader=test_dataloader,
+    #      model=model,
+    #      loss_fn=test_loss_fn)
 
     model.load_state_dict(best_state)
-    print('Testing with best model..')
-    test(opt=options,
+    
+    print("Generating the data for visualization..")
+    ordered_loss_dict = visual_data(opt=options,
          test_dataloader=test_dataloader,
          model=model,
          loss_fn=test_loss_fn)
 
+    torch.save(ordered_loss_dict, 'ordered_loss_dict.pt')
+    # torch.save(x_y_low, 'x_y_low.pt')
+    # torch.save(x_y_high, 'x_y_high.pt')
