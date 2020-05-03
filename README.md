@@ -18,6 +18,9 @@ You can also compute t-SNE for the original images with highest or lowest loss i
 ```
 python visual.py
 ```
+
+The procedure of how we implemented this is: We evaluated our best model on the test dataset, which consists of 100 tasks. Then we have recorded the loss for each of them and found out the tasks with highest (or highest 5) loss and lowest loss for comparison.  For tasks with highest loss, we identified their ground-truth class. Here we are testing using 5-way-5shots models, the number of testing classes is 5. So there should be 5 clusters in a 2D t-SNE visualization. After we found these 5 classes, we traced back the path of the ground truth class and displayed 20 images from each class.
+
 ![Testing using 5-way-5shots models](https://github.com/WangTianduo/Prototypical-Networks/blob/master/Experiment_results/t-sne.png)
 
 ## Omniglot Dataset
