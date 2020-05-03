@@ -269,7 +269,7 @@ if __name__ == '__main__':
     print(options)
 
     # Evaluation mode
-    eval(options)
+    # eval(options)
 
     # Training mode
     if not os.path.exists(options.experiment_root):
