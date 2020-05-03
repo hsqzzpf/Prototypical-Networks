@@ -78,7 +78,7 @@ def get_parser():
     parser.add_argument('-distance', '--distance_fn',
                         type=int,
                         help='0: cosine, 1: euclidean',
-                        default=0)
+                        default=1)
 
     parser.add_argument('--cuda',
                         action='store_true',
